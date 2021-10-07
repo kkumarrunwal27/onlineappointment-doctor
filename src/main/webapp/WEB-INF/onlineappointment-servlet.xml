@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+
+	xsi:schemaLocation="  
+        http://www.springframework.org/schema/beans  
+        http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://www.springframework.org/schema/context  
+        http://www.springframework.org/schema/context/spring-context.xsd  
+        http://www.springframework.org/schema/mvc  
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop  
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<tx:annotation-driven
+		transaction-manager="txManager" />
+	<tx:annotation-driven />
+
+
+	<mvc:resources location="/WEB-INF/resources"
+		mapping="/resources/**" />
+	<mvc:annotation-driven />
+
+	<context:component-scan
+		base-package="com.bookappointment"></context:component-scan>
+
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		name="viewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+
+
+	</bean>
+
+
+	<bean id="ds"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver"></property>
+		<property name="url"
+			value="jdbc:mysql://localhost:3307/appointment_poc?useSSl=false"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="admin"></property>
+	</bean>
+
+	<bean id="jt" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="ds"></property>
+	</bean>
+
+	<!-- <bean id="dao" class="com.poc.service.UserService"> <property name="template" 
+		ref="jt"></property> </bean> -->
+
+	<bean
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+		name="factory">
+		<property name="dataSource" ref="ds"></property>
+		<!-- hibernate properties -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<!-- Annotated classes -->
+		<property name="annotatedClasses">
+			<list>
+				<value>com.bookappointment.model.User</value>
+				<value>com.bookappointment.model.Category</value>
+				<value>com.bookappointment.model.Doctor</value>
+			</list>
+		</property>
+	</bean>
+	<bean class="org.springframework.orm.hibernate5.HibernateTemplate"
+		name="hibernateTemplate">
+		<property name="sessionFactory" ref="factory"></property>
+	</bean>
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
+		name="transactionManager">
+		<property name="sessionFactory" ref="factory"></property>
+	</bean>
+
+
+
+	<!-- <aop:config> <aop:advisor id="managerTx" advice-ref="txAdvice" pointcut="execution(* 
+		*..service.manager.*Manager.*(..))" order="1"/> </aop:config> <tx:advice 
+		id="txAdvice"> <tx:attributes> <tx:method name="*" propagation="REQUIRED" 
+		read-only="true"/> <tx:method name="create*" propagation="REQUIRED" read-only="false" 
+		/> <tx:method name="save*" propagation="REQUIRED" read-only="false" /> <tx:method 
+		name="update*" propagation="REQUIRED" read-only="false" /> <tx:method name="delete*" 
+		propagation="REQUIRED" read-only="false" /> </tx:attributes> </tx:advice> -->
+
+
+
+
+</beans>
